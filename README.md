@@ -113,6 +113,3 @@ MiniPlayerForYoutube/
 │ └── vite-env.d.ts
 ├── tsconfig.json
 └── vite.config.js
-
-Это тестовый PR для проверки ChatGPT workflow ымымы
-(trigger ChatGPT review again)

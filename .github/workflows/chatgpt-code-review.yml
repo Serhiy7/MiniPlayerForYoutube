@@ -1,8 +1,0 @@
-- name: Run ChatGPT review
-  env:
-    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  run: |
-    python .github/scripts/chatgpt_review.py \
-      --pr-number ${{ github.event.pull_request.number }} \
-      --repo "${{ github.repository }}"
