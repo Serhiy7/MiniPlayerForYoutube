@@ -1,0 +1,20 @@
+.layout-main {
+  display: grid; // Flex → Grid
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr; // одна строка по высоте
+  gap: $spacing-md;
+  height: 100%; // тянемся на весь контейнер
+
+  .video-area {
+    background: $color-surface;
+    border-radius: $radius-md;
+    overflow: hidden;
+    height: 100%; // захватываем весь row
+  }
+
+  .playlist-area {
+    background: $color-bg;
+    padding: $spacing-md;
+    overflow-y: auto;
+  }
+}

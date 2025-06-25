@@ -5,17 +5,17 @@ import LayoutControls from "../LayoutMain/LayoutControls/LayoutControls";
 import { useTheme } from "../../hooks/Theme/useTheme";
 import { useHotkeys } from "../../hooks/Hotkeys/useHotkeys";
 import { usePlayerStore } from "../../hooks/Player/usePlayerStore";
-import { usePlaylist } from "../../hooks/Playlist/usePlaylist";
-import { useAudioAnalyser } from "../../hooks/AudioAnalyser/useAudioAnalyser";
-import { useVisualizerToggle } from "../../hooks/VisualizerToggle/useVisualizerToggle";
+import { usePlaylist, PlaylistItem } from "../../hooks/Playlist/usePlaylist";
 import "./YouTubeAudioPlayer.scss";
 
-const PLAYLIST_ID = "RDCdqPv4Jks_w";
+const INITIAL_PLAYLIST_ID = "RDCdqPv4Jks_w";
+const YT_SEARCH_API = "https://www.googleapis.com/youtube/v3/search";
+const API_KEY = import.meta.env.VITE_PLAYER as string;
 
 const YouTubePlaylistPlayer: React.FC = () => {
   const { isDark, toggleTheme } = useTheme();
-  const { playlist, currentIndex, changeTrack, loading, error } =
-    usePlaylist(PLAYLIST_ID);
+  const { playlist, currentIndex, changeTrack, setPlaylist, loading, error } =
+    usePlaylist(INITIAL_PLAYLIST_ID);
 
   const {
     playerRef,
@@ -36,12 +36,7 @@ const YouTubePlaylistPlayer: React.FC = () => {
     onError,
   } = usePlayerStore();
 
-  // 1) хук анализатора
-  const { initAnalyser, analyserNode } = useAudioAnalyser();
-  // 2) хук показа/скрытия визуализатора
-  const { showVisualizer, toggleVisualizer } = useVisualizerToggle();
-
-  const [showVideo, setShowVideo] = useState(false);
+  const [showVideo, setShowVideo] = useState(true);
 
   useEffect(() => {
     document.body.classList.toggle("dark", isDark);
@@ -61,14 +56,8 @@ const YouTubePlaylistPlayer: React.FC = () => {
   });
 
   const handlePlayerReady = useCallback(() => {
-    const player = playerRef.current;
-    const internal = player?.getInternalPlayer();
-    if (internal instanceof HTMLMediaElement) {
-      initAnalyser(internal);
-      internal.volume = volume / 100;
-    }
     onReady();
-  }, [initAnalyser, onReady, playerRef, volume]);
+  }, [onReady]);
 
   const handleEnded = useCallback(() => {
     if (repeatMode === "one") {
@@ -79,6 +68,34 @@ const YouTubePlaylistPlayer: React.FC = () => {
       changeTrack(next, true, play, seekTo);
     }
   }, [currentIndex, playlist.length, repeatMode, changeTrack, play, seekTo]);
+
+  // Поиск треков
+  const handleSearch = useCallback(
+    async (query: string) => {
+      if (!API_KEY) return;
+      const params = new URLSearchParams({
+        part: "snippet",
+        type: "video",
+        maxResults: "10",
+        q: query,
+        key: API_KEY,
+      });
+      const res = await fetch(`${YT_SEARCH_API}?${params}`);
+      const json = await res.json();
+      const newList: PlaylistItem[] = json.items.map((item: any) => ({
+        videoId: item.id.videoId,
+        title: item.snippet.title,
+      }));
+      setPlaylist(newList);
+      changeTrack(
+        0,
+        false,
+        () => {},
+        () => {}
+      );
+    },
+    [setPlaylist, changeTrack]
+  );
 
   const currentVideoId = playlist[currentIndex]?.videoId;
   const url = currentVideoId
@@ -96,7 +113,7 @@ const YouTubePlaylistPlayer: React.FC = () => {
     >
       <Header
         title="YouTube Playlist Audio"
-        videoTitle={playlist[currentIndex]?.title || ""}
+        onSearch={handleSearch}
         isDark={isDark}
         onToggleTheme={toggleTheme}
         extraControls={
@@ -120,7 +137,6 @@ const YouTubePlaylistPlayer: React.FC = () => {
         onProgress={onProgress}
         onEnded={handleEnded}
         onError={onError}
-        initAnalyser={initAnalyser}
         playlist={playlist}
         currentIndex={currentIndex}
         changeTrack={changeTrack}
@@ -138,9 +154,6 @@ const YouTubePlaylistPlayer: React.FC = () => {
         onToggleShuffle={toggleShuffle}
         repeatMode={repeatMode}
         onToggleRepeat={toggleRepeat}
-        showVisualizer={showVisualizer}
-        toggleVisualizer={toggleVisualizer}
-        analyserNode={analyserNode}
         progress={progress}
         duration={duration}
         onSeek={seekTo}

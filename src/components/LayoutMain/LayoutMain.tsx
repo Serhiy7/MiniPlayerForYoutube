@@ -1,11 +1,11 @@
 import React from "react";
 import HiddenPlayer from "../HiddenPlayer/HiddenPlayer";
 import PlaylistSection from "../Playlist/PlaylistSection/PlaylistSection";
-import "./LayoutMain.sass";
+import "./LayoutMain.scss";
 
 interface LayoutMainProps {
   url: string;
-  showVideo: boolean; // добавлено
+  showVideo: boolean;
   playerRef: React.RefObject<any>;
   isPlaying: boolean;
   volume: number;
@@ -13,7 +13,6 @@ interface LayoutMainProps {
   onProgress: (state: any) => void;
   onEnded: () => void;
   onError: (error: Error) => void;
-  initAnalyser: (media: HTMLMediaElement) => void;
   playlist: Array<{ videoId: string; title: string }>;
   currentIndex: number;
   changeTrack: (
@@ -37,7 +36,6 @@ const LayoutMain: React.FC<LayoutMainProps> = ({
   onProgress,
   onEnded,
   onError,
-  initAnalyser,
   playlist,
   currentIndex,
   changeTrack,
@@ -56,8 +54,7 @@ const LayoutMain: React.FC<LayoutMainProps> = ({
         onProgress={onProgress}
         onEnded={onEnded}
         onError={onError}
-        initAnalyser={initAnalyser}
-        showVideo={showVideo} // передаём флаг дальше
+        showVideo={showVideo}
       />
     </div>
     <div className="playlist-area">

@@ -1,3 +1,4 @@
+// src/hooks/Playlist/usePlaylist.ts
 import { useState, useEffect, useCallback } from "react";
 
 export interface PlaylistItem {
@@ -9,10 +10,9 @@ interface YouTubeApiResponse {
   items: Array<{
     snippet: {
       title: string;
-      resourceId: {
-        videoId: string;
-      };
+      resourceId?: { videoId: string };
     };
+    id?: { videoId: string };
   }>;
   nextPageToken?: string;
 }
@@ -28,6 +28,8 @@ interface UsePlaylistResult {
     pauseFn?: () => void
   ) => void;
   reload: () => void;
+  /** теперь отдаём сеттер, чтобы можно было override плейлист */
+  setPlaylist: React.Dispatch<PlaylistItem[]>;
   loading: boolean;
   error: Error | null;
 }
@@ -36,7 +38,7 @@ const API_KEY = import.meta.env.VITE_PLAYER as string;
 const YT_PLAYLIST_ITEMS_API =
   "https://www.googleapis.com/youtube/v3/playlistItems";
 
-async function fetchPage(
+async function fetchPlaylistPage(
   playlistId: string,
   apiKey: string,
   pageToken?: string
@@ -49,7 +51,7 @@ async function fetchPage(
   });
   if (pageToken) params.set("pageToken", pageToken);
 
-  const resp = await fetch(`${YT_PLAYLIST_ITEMS_API}?${params.toString()}`);
+  const resp = await fetch(`${YT_PLAYLIST_ITEMS_API}?${params}`);
   if (!resp.ok) throw new Error(`YouTube API error: ${resp.status}`);
   return resp.json();
 }
@@ -69,16 +71,16 @@ export function usePlaylist(playlistId: string): UsePlaylistResult {
 
       let all: PlaylistItem[] = [];
       let nextPage: string | undefined;
-      let pageCount = 0;
       const MAX_PAGES = 10;
+      let pageCount = 0;
 
       while (pageCount < MAX_PAGES) {
-        const data = await fetchPage(playlistId, API_KEY, nextPage);
+        const data = await fetchPlaylistPage(playlistId, API_KEY, nextPage);
         all.push(
-          ...data.items.map((item) => ({
-            videoId: item.snippet.resourceId.videoId,
-            title: item.snippet.title,
-          }))
+          ...data.items.map((item) => {
+            const vid = item.snippet.resourceId?.videoId || item.id?.videoId;
+            return { videoId: vid!, title: item.snippet.title };
+          })
         );
         nextPage = data.nextPageToken;
         pageCount++;
@@ -128,6 +130,7 @@ export function usePlaylist(playlistId: string): UsePlaylistResult {
     currentIndex,
     changeTrack,
     reload,
+    setPlaylist, // <-- здесь
     loading,
     error,
   };

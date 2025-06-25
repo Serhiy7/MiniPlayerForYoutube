@@ -5,16 +5,27 @@ export function useAudioAnalyser() {
   const analyserRef = useRef<AnalyserNode | null>(null);
 
   const initAnalyser = useCallback((media: HTMLMediaElement) => {
-    if (audioContextRef.current) return;                 // уже инициализировано
+    if (audioContextRef.current) return; // уже инициализировано
+
     const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
     const ctx = new AudioCtx();
     const source = ctx.createMediaElementSource(media);
     const analyser = ctx.createAnalyser();
-    analyser.fftSize = 256;
+
+    // Winamp-style настройки
+    analyser.fftSize = 256; // 128 бинов → широкие столбцы
+    analyser.smoothingTimeConstant = 0.8; // плавность движения
+    analyser.minDecibels = -90;
+    analyser.maxDecibels = -10;
+
     source.connect(analyser);
     analyser.connect(ctx.destination);
+
     // нужен resume, чтобы AudioContext запустился
-    ctx.resume().catch(() => { /* ignore */ });
+    ctx.resume().catch(() => {
+      /* ignore */
+    });
+
     audioContextRef.current = ctx;
     analyserRef.current = analyser;
   }, []);

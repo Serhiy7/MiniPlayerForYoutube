@@ -1,9 +1,8 @@
 import React from "react";
 import ControlsWithTooltip from "../../Controls/ControlsWithTooltip/ControlsWithTooltip";
-import VisualizerToggle from "../../Visualizer/VisualizerToggle/VisualizerToggle";
 import { ProgressWithTime } from "../../ProgressWithTime/ProgressWithTime";
 import VolumeWithLabel from "../../VolumeSection/VolumeWithLabel/VolumeWithLabel";
-import "./LayoutControls.sass";
+import "./LayoutControls.scss";
 
 interface LayoutControlsProps {
   isPlaying: boolean;
@@ -14,9 +13,6 @@ interface LayoutControlsProps {
   onToggleShuffle: () => void;
   repeatMode: "none" | "one" | "all";
   onToggleRepeat: () => void;
-  showVisualizer: boolean;
-  toggleVisualizer: () => void;
-  analyserNode: AnalyserNode | null;
   progress: number;
   duration: number;
   onSeek: (time: number) => void;
@@ -33,9 +29,6 @@ const LayoutControls: React.FC<LayoutControlsProps> = ({
   onToggleShuffle,
   repeatMode,
   onToggleRepeat,
-  showVisualizer,
-  toggleVisualizer,
-  analyserNode,
   progress,
   duration,
   onSeek,
@@ -53,14 +46,13 @@ const LayoutControls: React.FC<LayoutControlsProps> = ({
       repeatMode={repeatMode}
       onToggleRepeat={onToggleRepeat}
     />
-    <VisualizerToggle
-      show={showVisualizer}
-      toggle={toggleVisualizer}
-      isPlaying={isPlaying}
-      analyserNode={analyserNode}
-    />
+
     <div className="progress-volume-section">
-      <ProgressWithTime progress={progress} duration={duration} onSeek={onSeek} />
+      <ProgressWithTime
+        progress={progress}
+        duration={duration}
+        onSeek={onSeek}
+      />
       <VolumeWithLabel volume={volume} onVolumeChange={onVolumeChange} />
     </div>
   </div>

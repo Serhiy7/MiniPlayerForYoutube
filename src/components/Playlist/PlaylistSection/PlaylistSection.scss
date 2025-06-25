@@ -1,66 +1,61 @@
+/* PlaylistSection.scss */
+
 .yt-playlist {
   list-style: none;
-  padding: 0;
   margin: 0;
-  width: 100%;
-  max-height: 500px;
+  padding: 0;
   overflow-y: auto;
-  background: var(--control-bg);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 0.5rem;
-  border: 1px solid rgba(var(--accent-color-rgb), 0.2);
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 10px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba(var(--accent-color-rgb), 0.4);
-    border-radius: 10px;
-  }
 
   &__item {
-    padding: 0.8rem 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-radius: 4px;
-    margin-bottom: 0.3rem;
-    color: var(--text-color);
-    font-size: 0.9rem;
     display: flex;
     align-items: center;
-    background: transparent;
-    border-left: 2px solid transparent;
-    position: relative;
+    gap: $spacing-md;
+    padding: $spacing-sm $spacing-md;
+    min-height: 4.5rem; // 72px
+    background: $color-bg;
+    cursor: pointer;
+    transition: background 0.2s;
 
+    &--active {
+      background: $color-surface-variant;
+    }
     &:hover {
-      background: rgba(var(--accent-color-rgb), 0.05);
+      background: $color-surface;
     }
 
-    &.yt-playlist__item--active {
-      background: rgba(var(--accent-color-rgb), 0.1);
-      color: var(--text-color);
-      font-weight: 500;
-      border-left: 2px solid var(--accent-color);
+    .thumb {
+      width: 3.5rem; // ≈56px
+      height: 3.5rem;
+      background-size: cover;
+      background-position: center;
+      border-radius: $radius-sm;
     }
 
-    &::before {
-      content: "";
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: rgba(var(--accent-color-rgb), 0.4);
-      margin-right: 0.8rem;
-    }
+    .info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
 
-    &.yt-playlist__item--active::before {
-      background: var(--accent-color);
+      .title {
+        color: $color-text-primary;
+        font-weight: 500;
+      }
+      .artist {
+        color: $color-text-secondary;
+        font-size: 0.875rem;
+      }
     }
   }
+
+  &__loading,
+  &__empty {
+    padding: $spacing-md;
+    color: $color-text-secondary;
+    text-align: center;
+  }
+}
+.yt-playlist {
+  // показываем максимум 10 элементов по 4.5rem высотой
+  max-height: calc(4.5rem * 10);
+  overflow-y: auto;
 }

@@ -15,23 +15,12 @@ interface Props {
   onProgress: (state: { playedSeconds: number }) => void;
   onEnded: () => void;
   onError: (error: Error) => void;
-  initAnalyser: (media: HTMLMediaElement) => void;
   showVideo: boolean;
 }
 
 const HiddenPlayer = forwardRef<ReactPlayer, Props>(
   (
-    {
-      url,
-      playing,
-      volume,
-      onReady,
-      onProgress,
-      onEnded,
-      onError,
-      initAnalyser,
-      showVideo,
-    },
+    { url, playing, volume, onReady, onProgress, onEnded, onError, showVideo },
     ref
   ) => {
     const localRef = useRef<ReactPlayer>(null);
@@ -39,22 +28,20 @@ const HiddenPlayer = forwardRef<ReactPlayer, Props>(
     useImperativeHandle(ref, () => localRef.current!);
 
     const handleReady = useCallback(() => {
-      const internal = localRef.current!.getInternalPlayer();
-      if (internal instanceof HTMLMediaElement) {
-        initAnalyser(internal);
-        internal.volume = volume / 100;
-      }
       onReady();
-    }, [initAnalyser, onReady, volume]);
+    }, [onReady]);
 
     return (
       <div
-        className={`hidden-player-wrapper ${showVideo ? "visible" : "hidden"}`}
+        className={`hidden-player-wrapper ${
+          showVideo ? "hidden-player-wrapper--visible" : ""
+        }`}
       >
         <ReactPlayer
           ref={localRef}
           url={url}
           playing={playing}
+          volume={volume / 100}
           controls={false}
           width="100%"
           height="100%"
